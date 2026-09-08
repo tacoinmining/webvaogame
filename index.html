@@ -664,9 +664,243 @@
           height: 38px;
         }
       }
+
+      /* ==========================================================================
+         PRELOADER / MÀN HÌNH LOADING KIM LOẠI
+         ========================================================================== */
+      .preloader-overlay {
+        position: fixed;
+        inset: 0;
+        width: 100vw;
+        height: 100vh;
+        background-color: #000000;
+        z-index: 99999;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 1;
+        visibility: visible;
+        transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1),
+                    transform 0.8s cubic-bezier(0.16, 1, 0.3, 1),
+                    visibility 0.8s;
+      }
+
+      .preloader-overlay.loaded {
+        opacity: 0;
+        visibility: hidden;
+        transform: scale(1.04);
+        pointer-events: none;
+      }
+
+      .preloader-content {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 1.4rem;
+        max-width: 440px;
+        width: 90%;
+        text-align: center;
+        position: relative;
+        z-index: 2;
+      }
+
+      /* Vòng xoay năng lượng kim loại */
+      .preloader-reactor {
+        position: relative;
+        width: 92px;
+        height: 92px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .reactor-outer-ring {
+        position: absolute;
+        inset: 0;
+        border-radius: 50%;
+        border: 2px dashed rgba(203, 213, 225, 0.35);
+        animation: spin-cw 9s linear infinite;
+      }
+
+      .reactor-inner-spinner {
+        position: absolute;
+        inset: 8px;
+        border-radius: 50%;
+        border: 2.5px solid transparent;
+        border-top-color: #ffffff;
+        border-right-color: rgba(203, 213, 225, 0.8);
+        border-bottom-color: rgba(148, 163, 184, 0.3);
+        animation: spin-cw 1.6s cubic-bezier(0.55, 0.15, 0.45, 0.85) infinite;
+        filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.7));
+      }
+
+      .reactor-core-glow {
+        position: absolute;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: radial-gradient(circle, rgba(255, 255, 255, 0.8) 0%, rgba(148, 163, 184, 0.2) 60%, transparent 80%);
+        filter: blur(6px);
+        animation: pulse-core 2s ease-in-out infinite alternate;
+      }
+
+      .reactor-center-icon {
+        position: relative;
+        z-index: 3;
+        width: 22px;
+        height: 22px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .reactor-svg {
+        width: 100%;
+        height: 100%;
+        fill: #ffffff;
+        filter: drop-shadow(0 0 6px rgba(255, 255, 255, 0.9));
+      }
+
+      @keyframes spin-cw {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+      }
+
+      @keyframes pulse-core {
+        0% { transform: scale(0.85); opacity: 0.5; }
+        100% { transform: scale(1.15); opacity: 1; }
+      }
+
+      /* Số phần trăm Chrome nổi khối */
+      .preloader-counter {
+        display: flex;
+        align-items: baseline;
+        justify-content: center;
+      }
+
+      .load-percent-number {
+        font-family: var(--font-display);
+        font-size: 2.8rem;
+        font-weight: 900;
+        letter-spacing: 2px;
+        background: linear-gradient(180deg, #ffffff 0%, #cbd5e1 50%, #94a3b8 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        filter: drop-shadow(0 0 15px rgba(255, 255, 255, 0.5));
+      }
+
+      .load-percent-symbol {
+        font-family: var(--font-display);
+        font-size: 1.3rem;
+        font-weight: 800;
+        color: rgba(203, 213, 225, 0.85);
+        margin-left: 2px;
+      }
+
+      /* Thanh tiến trình kim loại */
+      .preloader-bar-track {
+        width: 100%;
+        max-width: 360px;
+        height: 8px;
+        background: #0f172a;
+        border: 1px solid rgba(203, 213, 225, 0.35);
+        border-radius: 4px;
+        overflow: hidden;
+        position: relative;
+        box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.9), 0 0 12px rgba(226, 232, 240, 0.15);
+      }
+
+      .preloader-bar-fill {
+        height: 100%;
+        width: 0%;
+        background: linear-gradient(90deg, #64748b 0%, #cbd5e1 45%, #ffffff 85%, #cbd5e1 100%);
+        border-radius: 3px;
+        position: relative;
+        box-shadow: 0 0 12px rgba(255, 255, 255, 0.75);
+        transition: width 0.1s linear;
+      }
+
+      .bar-sheen-light {
+        position: absolute;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        width: 30px;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.9), transparent);
+        animation: bar-sheen-move 1.5s linear infinite;
+      }
+
+      @keyframes bar-sheen-move {
+        0% { transform: translateX(-100px); }
+        100% { transform: translateX(360px); }
+      }
+
+      /* Dòng trạng thái nạp dữ liệu */
+      .preloader-status {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.6rem;
+        font-family: 'Rajdhani', var(--font-display);
+        font-size: 0.85rem;
+        font-weight: 600;
+        letter-spacing: 2px;
+        color: #94a3b8;
+        text-transform: uppercase;
+      }
+
+      .status-pulse-dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: #ffffff;
+        box-shadow: 0 0 8px #ffffff;
+        animation: pulse-dot 1.2s ease-in-out infinite alternate;
+      }
+
+      @keyframes pulse-dot {
+        0% { opacity: 0.3; transform: scale(0.7); }
+        100% { opacity: 1; transform: scale(1.2); }
+      }
     </style>
   </head>
   <body>
+    <!-- MÀN HÌNH PRELOADER / LOADING KIM LOẠI -->
+    <div id="preloader" class="preloader-overlay">
+      <div class="preloader-content">
+        <!-- Vòng xoay năng lượng kim loại -->
+        <div class="preloader-reactor">
+          <div class="reactor-outer-ring"></div>
+          <div class="reactor-inner-spinner"></div>
+          <div class="reactor-core-glow"></div>
+          <div class="reactor-center-icon">
+            <svg viewBox="0 0 24 24" class="reactor-svg">
+              <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+            </svg>
+          </div>
+        </div>
+
+        <!-- Số phần trăm đúc Chrome nổi khối -->
+        <div class="preloader-counter">
+          <span id="loadPercent" class="load-percent-number">0</span><span class="load-percent-symbol">%</span>
+        </div>
+
+        <!-- Thanh tiến trình thép phay xước -->
+        <div class="preloader-bar-track">
+          <div id="loadProgressBar" class="preloader-bar-fill">
+            <span class="bar-sheen-light"></span>
+          </div>
+        </div>
+
+        <!-- Dòng trạng thái nạp dữ liệu -->
+        <div class="preloader-status">
+          <span class="status-pulse-dot"></span>
+          <span id="loadStatusText" class="status-text">ĐANG TẢI DỮ LIỆU...</span>
+        </div>
+      </div>
+    </div>
+
     <!-- Three.js Background Canvas -->
     <canvas id="webgl-canvas"></canvas>
 
@@ -1066,31 +1300,107 @@
       }
 
       /* --------------------------------------------------------------------------
-       3. VIDEO NGƯỜI SẮT & TỰ ĐỘNG CÂN BẰNG TỶ LỆ KHUNG HÌNH
+       3. PRELOADER & VIDEO TẢI DỮ LIỆU
        -------------------------------------------------------------------------- */
       const video = document.getElementById("metalHumanVideo");
       const videoTiltWrapper = document.getElementById("videoTiltWrapper");
       const videoContainer = document.getElementById("videoContainer");
       const videoErrorBadge = document.getElementById("videoErrorBadge");
 
+      const preloader = document.getElementById("preloader");
+      const loadPercent = document.getElementById("loadPercent");
+      const loadProgressBar = document.getElementById("loadProgressBar");
+      const loadStatusText = document.getElementById("loadStatusText");
+
+      let currentPercent = 0;
+      let targetPercent = 15;
+      let isLoaded = false;
+
+      function finishLoading() {
+        if (isLoaded) return;
+        isLoaded = true;
+        currentPercent = 100;
+        targetPercent = 100;
+        if (loadPercent) loadPercent.textContent = "100";
+        if (loadProgressBar) loadProgressBar.style.width = "100%";
+        if (loadStatusText) loadStatusText.textContent = "DỮ LIỆU ĐÃ TẢI THÀNH CÔNG";
+
+        if (video) {
+          video.play().catch(() => {});
+        }
+
+        setTimeout(() => {
+          if (preloader) {
+            preloader.classList.add("loaded");
+            setTimeout(() => {
+              try { preloader.remove(); } catch(e){}
+            }, 850);
+          }
+        }, 500);
+      }
+
+      // Vòng lặp cập nhật tiến trình loading mượt mà
+      const loadInterval = setInterval(() => {
+        if (isLoaded) {
+          clearInterval(loadInterval);
+          return;
+        }
+
+        // Tăng dần tiến trình giả lập để luôn mượt mà trong khi chờ video nạp
+        targetPercent = Math.min(97, targetPercent + 0.35);
+        currentPercent += (targetPercent - currentPercent) * 0.12;
+        
+        const displayVal = Math.min(100, Math.floor(currentPercent));
+        if (loadPercent) loadPercent.textContent = displayVal;
+        if (loadProgressBar) loadProgressBar.style.width = `${displayVal}%`;
+
+        if (targetPercent >= 100 && currentPercent >= 99) {
+          clearInterval(loadInterval);
+          finishLoading();
+        }
+      }, 30);
+
+      // Giới hạn tối đa 6.5s tự động hoàn tất nếu mạng hoặc video nạp chậm
+      setTimeout(() => {
+        if (!isLoaded) {
+          targetPercent = 100;
+          finishLoading();
+        }
+      }, 6500);
+
       if (video) {
         video.addEventListener("loadedmetadata", () => {
           if (video.videoWidth && video.videoHeight && videoContainer) {
             videoContainer.style.aspectRatio = `${video.videoWidth} / ${video.videoHeight}`;
           }
+          targetPercent = Math.max(targetPercent, 40);
+        });
+
+        video.addEventListener("loadeddata", () => {
+          targetPercent = Math.max(targetPercent, 65);
+        });
+
+        video.addEventListener("progress", () => {
+          if (video.duration > 0 && video.buffered.length > 0) {
+            const bufferedEnd = video.buffered.end(video.buffered.length - 1);
+            const pct = (bufferedEnd / video.duration) * 100;
+            targetPercent = Math.max(targetPercent, Math.min(96, 55 + pct * 0.45));
+          }
+        });
+
+        video.addEventListener("canplaythrough", () => {
+          targetPercent = 100;
+        });
+
+        video.addEventListener("canplay", () => {
+          if (targetPercent < 90) targetPercent = 90;
         });
 
         video.addEventListener("error", () => {
           if (videoErrorBadge) videoErrorBadge.style.display = "block";
+          targetPercent = 100;
+          finishLoading();
         });
-
-        const playPromise = video.play();
-        if (playPromise !== undefined) {
-          playPromise.catch(() => {
-            video.muted = true;
-            video.play().catch(() => {});
-          });
-        }
 
         const resumeMedia = () => {
           if (video.paused) {
