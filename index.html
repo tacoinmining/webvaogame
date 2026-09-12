@@ -16,8 +16,8 @@
       rel="stylesheet"
     />
 
-    <!-- Three.js CDN -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <!-- Spline 3D Viewer CDN (Con AI 3D tương tác) -->
+    <script type="module" src="https://unpkg.com/@splinetool/viewer/build/spline-viewer.js"></script>
 
     <style>
       /* ==========================================================================
@@ -64,9 +64,9 @@
       }
 
       /* ==========================================================================
-       THREE.JS WEBGL CANVAS (HẠT BỤI KIM LOẠI & LƯỚI THÉP KHÔNG GIAN)
+       KINETIC GRID CANVAS (HẠT BỤI & LƯỚI ĐỘNG LỰC TƯƠNG TÁC THEO CON TRỎ)
        ========================================================================== */
-      #webgl-canvas {
+      #kinetic-grid-canvas {
         position: fixed;
         top: 0;
         left: 0;
@@ -84,8 +84,8 @@
         pointer-events: none;
         background: radial-gradient(
           circle at center,
-          transparent 35%,
-          rgba(0, 0, 0, 0.8) 100%
+          transparent 40%,
+          rgba(9, 9, 12, 0.78) 100%
         );
       }
 
@@ -121,23 +121,23 @@
       .video-frame-container {
         position: relative;
         width: 100%;
-        max-width: 720px;
-        aspect-ratio: 4 / 3;
+        max-width: 780px;
+        height: 75vh;
+        min-height: 480px;
         max-height: 86vh;
         display: flex;
         align-items: center;
         justify-content: center;
-        perspective: 1200px;
       }
 
-      /* Hào quang kim loại bạc / ánh thép phía sau người sắt */
+      /* Hào quang kim loại bạc / ánh thép phía sau robot AI */
       .video-ambient-glow {
         position: absolute;
-        width: 85%;
-        height: 85%;
+        width: 90%;
+        height: 90%;
         background: radial-gradient(
-          circle at 45% 50%,
-          rgba(148, 163, 184, 0.22) 0%,
+          circle at 50% 50%,
+          rgba(148, 163, 184, 0.25) 0%,
           rgba(203, 213, 225, 0.15) 45%,
           transparent 75%
         );
@@ -158,59 +158,26 @@
         }
       }
 
-      /* Khung nghiêng 3D parallax theo chuột */
-      .video-tilt-wrapper {
+      /* Khung chứa con AI 3D tương tác Spline */
+      .ai-model-wrapper {
         position: relative;
         width: 100%;
         height: 100%;
         display: flex;
         align-items: center;
         justify-content: center;
-        transform-style: preserve-3d;
-        transition: transform 0.25s cubic-bezier(0.2, 0.8, 0.2, 1);
         z-index: 1;
       }
 
-      /* Video người sắt: Nền đồng bộ tuyệt đối với trang web (#000000) */
-      .metal-video {
+      spline-viewer {
         width: 100%;
         height: 100%;
-        object-fit: cover;
-        object-position: center;
-        border-radius: 20px;
-        background-color: #000000;
-
-        /* Hòa trộn mép video mượt mà vào nền đen tuyền */
-        mask-image: radial-gradient(
-          ellipse 94% 92% at 50% 50%,
-          #000 65%,
-          rgba(0, 0, 0, 0.9) 78%,
-          rgba(0, 0, 0, 0.3) 90%,
-          transparent 100%
-        );
-        -webkit-mask-image: radial-gradient(
-          ellipse 94% 92% at 50% 50%,
-          #000 65%,
-          rgba(0, 0, 0, 0.9) 78%,
-          rgba(0, 0, 0, 0.3) 90%,
-          transparent 100%
-        );
-
-        filter: contrast(1.05) brightness(1.03);
+        background: transparent;
+        outline: none;
       }
 
-      .video-error-badge {
-        display: none;
-        position: absolute;
-        background: rgba(220, 38, 38, 0.2);
-        border: 1px solid rgba(239, 68, 68, 0.5);
-        padding: 1rem 1.5rem;
-        border-radius: 8px;
-        color: #fca5a5;
-        font-size: 0.9rem;
-        text-align: center;
-        z-index: 10;
-        backdrop-filter: blur(10px);
+      spline-viewer::part(badge) {
+        display: none !important;
       }
 
       /* --------------------------------------------------------------------------
@@ -234,129 +201,98 @@
         justify-content: center;
       }
 
-      /* Hào quang ánh kim & sóng radar thép sau nút */
+      /* ==========================================================================
+       NÚT BẤM "VÀO GAME ĐÊ" PHONG CÁCH CYBER HOLOGRAPHIC (ĐỒNG BỘ KINETIC GRID)
+       ========================================================================== */
+      .cta-container {
+        position: relative;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      /* Hào quang ánh xanh Neon & sóng radar lan tỏa */
       .button-ambient-wave {
         position: absolute;
-        width: 300px;
-        height: 130px;
+        width: 330px;
+        height: 140px;
         border-radius: 50%;
         background: radial-gradient(
           circle,
-          rgba(226, 232, 240, 0.3) 0%,
-          rgba(148, 163, 184, 0.15) 50%,
-          transparent 70%
+          rgba(74, 158, 255, 0.3) 0%,
+          rgba(56, 189, 248, 0.12) 50%,
+          transparent 75%
         );
-        filter: blur(32px);
+        filter: blur(36px);
         pointer-events: none;
         z-index: 0;
         transition: all 0.5s ease;
+        animation: pulse-cyber-aura 4s ease-in-out infinite alternate;
+      }
+
+      @keyframes pulse-cyber-aura {
+        0% { transform: scale(0.95); opacity: 0.6; }
+        100% { transform: scale(1.1); opacity: 0.9; }
       }
 
       .button-radar-ring {
         position: absolute;
-        width: 100%;
-        height: 100%;
-        border-radius: 14px;
-        border: 1px solid rgba(203, 213, 225, 0.3);
+        inset: -6px;
+        border-radius: 26px;
+        border: 1.5px solid rgba(74, 158, 255, 0.45);
         pointer-events: none;
-        animation: radar-metal-expand 3s cubic-bezier(0.1, 0.7, 0.1, 1) infinite;
+        animation: radar-cyber-expand 3s cubic-bezier(0.1, 0.7, 0.1, 1) infinite;
         z-index: 0;
       }
 
-      @keyframes radar-metal-expand {
-        0% {
-          transform: scale(1);
-          opacity: 0.75;
-        }
-        100% {
-          transform: scale(1.38, 1.65);
-          opacity: 0;
-        }
+      @keyframes radar-cyber-expand {
+        0% { transform: scale(1); opacity: 0.8; }
+        100% { transform: scale(1.3, 1.55); opacity: 0; }
       }
 
-      /* SIÊU PHẨM NÚT BẤM KIM LOẠI / THÉP BRUSHED STEEL & CHROME */
-      .metallic-steel-btn {
+      /* NÚT BẤM CYBER HOLOGRAPHIC */
+      .cyber-game-btn, .metallic-steel-btn {
         position: relative;
         z-index: 2;
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        gap: 1.5rem;
-        padding: 1.4rem 3.6rem;
-
-        /* Vân bề mặt thép phay xước (Brushed Steel Plate) */
-        background:
-          repeating-linear-gradient(
-            65deg,
-            rgba(255, 255, 255, 0.025) 0px,
-            rgba(255, 255, 255, 0.025) 1px,
-            transparent 1px,
-            transparent 4px
-          ),
-          linear-gradient(
-            135deg,
-            #1e293b 0%,
-            #0f172a 40%,
-            #1e293b 75%,
-            #334155 100%
-          );
-
-        backdrop-filter: blur(20px);
-        -webkit-backdrop-filter: blur(20px);
-
-        /* Vát cạnh tấm kim loại công nghiệp */
-        clip-path: polygon(
-          18px 0%,
-          calc(100% - 18px) 0%,
-          100% 18px,
-          100% calc(100% - 18px),
-          calc(100% - 18px) 100%,
-          18px 100%,
-          0% calc(100% - 18px),
-          0% 18px
+        gap: 1.25rem;
+        padding: 1.25rem 3.2rem;
+        border-radius: 20px;
+        background: linear-gradient(
+          135deg,
+          rgba(15, 23, 42, 0.88) 0%,
+          rgba(8, 12, 22, 0.96) 100%
         );
-
-        /* Viền kim loại 3D nổi khối */
-        border: 1.5px solid rgba(203, 213, 225, 0.45);
+        backdrop-filter: blur(24px);
+        -webkit-backdrop-filter: blur(24px);
+        border: 1.5px solid rgba(74, 158, 255, 0.45);
         color: #ffffff;
         text-decoration: none;
         cursor: pointer;
         overflow: hidden;
-
-        /* Đổ bóng kim loại nặng và ánh sáng thép */
         box-shadow:
-          0 0 25px rgba(226, 232, 240, 0.22),
-          0 20px 45px rgba(0, 0, 0, 0.95),
-          inset 0 1px 1px rgba(255, 255, 255, 0.6),
-          inset 0 -2px 6px rgba(0, 0, 0, 0.7);
-
+          0 0 25px rgba(74, 158, 255, 0.3),
+          0 18px 45px rgba(0, 0, 0, 0.92),
+          inset 0 1px 2px rgba(255, 255, 255, 0.4),
+          inset 0 0 15px rgba(74, 158, 255, 0.15);
         transition: all 0.35s cubic-bezier(0.2, 0.8, 0.2, 1);
         transform: translate3d(0, 0, 0);
       }
 
-      /* Viền Chrome phản quang đa chiều */
-      .metallic-steel-btn::before {
-        content: "";
+      /* Viền ánh sáng Neon Cyan / Blue Gradient */
+      .btn-cyber-border {
         position: absolute;
         inset: 0;
-        clip-path: polygon(
-          18px 0%,
-          calc(100% - 18px) 0%,
-          100% 18px,
-          100% calc(100% - 18px),
-          calc(100% - 18px) 100%,
-          18px 100%,
-          0% calc(100% - 18px),
-          0% 18px
-        );
+        border-radius: 20px;
         padding: 1.8px;
         background: linear-gradient(
           135deg,
-          #ffffff 0%,
-          #94a3b8 25%,
-          #334155 50%,
-          #cbd5e1 75%,
-          #ffffff 100%
+          #38bdf8 0%,
+          rgba(74, 158, 255, 0.4) 30%,
+          #818cf8 70%,
+          #38bdf8 100%
         );
         -webkit-mask:
           linear-gradient(#fff 0 0) content-box,
@@ -364,45 +300,10 @@
         -webkit-mask-composite: xor;
         mask-composite: exclude;
         pointer-events: none;
-        transition: opacity 0.35s ease;
       }
 
-      /* Đinh tán kim loại 4 góc (Industrial Rivets) */
-      .metal-rivet {
-        position: absolute;
-        width: 6px;
-        height: 6px;
-        border-radius: 50%;
-        background: radial-gradient(
-          circle at 35% 35%,
-          #ffffff 0%,
-          #94a3b8 50%,
-          #0f172a 100%
-        );
-        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
-        z-index: 3;
-        pointer-events: none;
-      }
-
-      .rivet-tl {
-        top: 7px;
-        left: 22px;
-      }
-      .rivet-tr {
-        top: 7px;
-        right: 22px;
-      }
-      .rivet-bl {
-        bottom: 7px;
-        left: 22px;
-      }
-      .rivet-br {
-        bottom: 7px;
-        right: 22px;
-      }
-
-      /* Vệt sáng chrome loáng kim loại quét ngang (Specular Chrome Sheen) */
-      .btn-chrome-sheen {
+      /* Vệt sáng Laser quét ngang khi hover */
+      .btn-laser-sheen, .btn-chrome-sheen {
         position: absolute;
         top: -60%;
         left: -80%;
@@ -411,28 +312,28 @@
         background: linear-gradient(
           90deg,
           transparent 0%,
-          rgba(255, 255, 255, 0.15) 30%,
-          rgba(255, 255, 255, 0.75) 50%,
-          rgba(203, 213, 225, 0.3) 70%,
+          rgba(74, 158, 255, 0.2) 25%,
+          rgba(255, 255, 255, 0.85) 50%,
+          rgba(56, 189, 248, 0.4) 75%,
           transparent 100%
         );
         transform: rotate(30deg);
         pointer-events: none;
-        transition: transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+        transition: transform 0.85s cubic-bezier(0.16, 1, 0.3, 1);
         opacity: 0;
       }
 
-      /* Đốm sáng bạc rọi theo con trỏ chuột */
-      .btn-metal-spotlight {
+      /* Đốm sáng Neon theo chuột */
+      .btn-cyber-spotlight, .btn-metal-spotlight {
         position: absolute;
         top: var(--mouse-y, 50%);
         left: var(--mouse-x, 50%);
-        width: 150px;
-        height: 150px;
+        width: 160px;
+        height: 160px;
         background: radial-gradient(
           circle,
-          rgba(255, 255, 255, 0.35) 0%,
-          rgba(203, 213, 225, 0.15) 50%,
+          rgba(74, 158, 255, 0.35) 0%,
+          rgba(56, 189, 248, 0.15) 50%,
           transparent 70%
         );
         transform: translate(-50%, -50%);
@@ -442,154 +343,174 @@
         z-index: 1;
       }
 
-      /* Chữ "VÀO GAME ĐÊ" đúc thép Chrome nổi khối */
-      .btn-metal-label {
-        position: relative;
-        z-index: 2;
-        font-family: var(--font-display);
-        font-size: 1.45rem;
-        font-weight: 900;
-        letter-spacing: 5px;
-        text-transform: uppercase;
-
-        /* Đổ bóng & ánh kim khắc trên thép */
-        background: linear-gradient(
-          180deg,
-          #ffffff 0%,
-          #f1f5f9 35%,
-          #cbd5e1 65%,
-          #94a3b8 100%
-        );
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.9))
-          drop-shadow(0 0 12px rgba(255, 255, 255, 0.45));
-        transition: all 0.3s ease;
-      }
-
-      /* Hộp biểu tượng mũi tên bằng thép đánh bóng */
-      .btn-steel-icon-box {
+      /* Khối icon tay cầm game Cyberpunk */
+      .btn-cyber-icon-box, .btn-steel-icon-box {
         width: 44px;
         height: 44px;
-        border-radius: 8px;
+        border-radius: 12px;
         background: linear-gradient(
           135deg,
-          rgba(51, 65, 85, 0.85) 0%,
-          rgba(15, 23, 42, 0.95) 100%
+          rgba(56, 189, 248, 0.25) 0%,
+          rgba(30, 41, 59, 0.85) 100%
         );
-        border: 1px solid rgba(226, 232, 240, 0.5);
+        border: 1px solid rgba(74, 158, 255, 0.6);
         display: flex;
         align-items: center;
         justify-content: center;
-        color: #ffffff;
+        color: #38bdf8;
         box-shadow:
-          0 4px 10px rgba(0, 0, 0, 0.7),
-          inset 0 1px 0 rgba(255, 255, 255, 0.4);
+          0 0 14px rgba(56, 189, 248, 0.4),
+          inset 0 1px 1px rgba(255, 255, 255, 0.5);
         transition: all 0.35s cubic-bezier(0.2, 0.8, 0.2, 1);
         position: relative;
-        overflow: hidden;
         z-index: 2;
       }
 
-      .btn-steel-icon-svg {
-        width: 22px;
-        height: 22px;
-        fill: none;
-        stroke: #ffffff;
-        stroke-width: 2.6;
-        stroke-linecap: round;
-        stroke-linejoin: round;
-        filter: drop-shadow(0 0 4px rgba(255, 255, 255, 0.6));
+      .btn-cyber-icon-svg, .btn-steel-icon-svg {
+        width: 24px;
+        height: 24px;
+        stroke: #38bdf8;
+        filter: drop-shadow(0 0 6px rgba(56, 189, 248, 0.8));
         transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
       }
 
-      /* Sóng xung kích kim loại khi nhấn */
+      /* Chữ "VÀO GAME ĐÊ" Neon Cyan */
+      .btn-cyber-label, .btn-metal-label {
+        position: relative;
+        z-index: 2;
+        font-family: var(--font-display);
+        font-size: 1.4rem;
+        font-weight: 900;
+        letter-spacing: 4px;
+        text-transform: uppercase;
+        background: linear-gradient(
+          180deg,
+          #ffffff 0%,
+          #e0f2fe 40%,
+          #38bdf8 80%,
+          #0284c7 100%
+        );
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        filter: drop-shadow(0 0 14px rgba(56, 189, 248, 0.75));
+        transition: all 0.3s ease;
+      }
+
+      /* Huy hiệu mũi tên chuyển động */
+      .btn-arrow-badge {
+        width: 36px;
+        height: 36px;
+        border-radius: 10px;
+        background: rgba(74, 158, 255, 0.15);
+        border: 1px solid rgba(74, 158, 255, 0.35);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #e0f2fe;
+        position: relative;
+        z-index: 2;
+        transition: all 0.35s ease;
+      }
+
+      .btn-arrow-svg {
+        width: 18px;
+        height: 18px;
+        transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+      }
+
+      /* Sóng xung kích khi bấm */
       .btn-click-ripple {
         position: absolute;
         border-radius: 50%;
         transform: scale(0);
-        animation: ripple-steel 0.55s ease-out forwards;
+        animation: ripple-cyber 0.55s ease-out forwards;
         background: radial-gradient(
           circle,
-          rgba(255, 255, 255, 0.8) 0%,
-          rgba(203, 213, 225, 0.4) 50%,
+          rgba(56, 189, 248, 0.85) 0%,
+          rgba(74, 158, 255, 0.4) 50%,
           transparent 80%
         );
         pointer-events: none;
         z-index: 10;
       }
 
-      @keyframes ripple-steel {
-        0% {
-          transform: scale(0);
-          opacity: 1;
-        }
-        100% {
-          transform: scale(3.5);
-          opacity: 0;
-        }
+      @keyframes ripple-cyber {
+        0% { transform: scale(0); opacity: 1; }
+        100% { transform: scale(3.5); opacity: 0; }
       }
 
-      /* ==========================================================================
-       HIỆU ỨNG HOVER & ACTIVE (CẢM GIÁC THÉP NẶNG & CHROME SẮC LẠNH)
-       ========================================================================== */
-      .metallic-steel-btn:hover {
-        border-color: #ffffff;
-        transform: translateY(-3px) scale(1.03);
+      /* HIỆU ỨNG HOVER & ACTIVE */
+      .cyber-game-btn:hover, .metallic-steel-btn:hover {
+        border-color: #38bdf8;
+        transform: translateY(-3px) scale(1.035);
         box-shadow:
-          0 0 35px rgba(255, 255, 255, 0.45),
-          0 0 70px rgba(148, 163, 184, 0.35),
+          0 0 35px rgba(56, 189, 248, 0.65),
+          0 0 75px rgba(74, 158, 255, 0.35),
           0 25px 50px rgba(0, 0, 0, 0.95),
           inset 0 1px 2px rgba(255, 255, 255, 0.8),
-          inset 0 0 25px rgba(203, 213, 225, 0.2);
+          inset 0 0 25px rgba(56, 189, 248, 0.3);
       }
 
+      .cyber-game-btn:hover .btn-laser-sheen,
       .metallic-steel-btn:hover .btn-chrome-sheen {
         opacity: 1;
         transform: translateX(480px) rotate(30deg);
       }
 
+      .cyber-game-btn:hover .btn-cyber-spotlight,
       .metallic-steel-btn:hover .btn-metal-spotlight {
         opacity: 1;
       }
 
+      .cyber-game-btn:hover .btn-cyber-label,
       .metallic-steel-btn:hover .btn-metal-label {
-        filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 1))
-          drop-shadow(0 0 18px rgba(255, 255, 255, 0.75));
-        letter-spacing: 6px;
+        letter-spacing: 5px;
+        filter: drop-shadow(0 0 20px rgba(56, 189, 248, 1));
       }
 
+      .cyber-game-btn:hover .btn-cyber-icon-box,
       .metallic-steel-btn:hover .btn-steel-icon-box {
-        background: linear-gradient(135deg, #e2e8f0 0%, #94a3b8 100%);
+        background: linear-gradient(135deg, #38bdf8 0%, #2563eb 100%);
         border-color: #ffffff;
-        color: #0f172a;
-        box-shadow: 0 0 20px rgba(255, 255, 255, 0.6);
-        transform: translateX(4px);
+        color: #ffffff;
+        box-shadow: 0 0 22px rgba(56, 189, 248, 0.8);
+        transform: scale(1.08) rotate(-4deg);
       }
 
+      .cyber-game-btn:hover .btn-cyber-icon-box .btn-cyber-icon-svg,
       .metallic-steel-btn:hover .btn-steel-icon-box .btn-steel-icon-svg {
-        stroke: #0f172a;
-        transform: translateX(3px) scale(1.1);
-        filter: none;
+        stroke: #ffffff;
+        transform: scale(1.1);
       }
 
+      .cyber-game-btn:hover .btn-arrow-badge {
+        background: rgba(56, 189, 248, 0.35);
+        border-color: #38bdf8;
+        transform: translateX(5px);
+        box-shadow: 0 0 15px rgba(56, 189, 248, 0.5);
+      }
+
+      .cyber-game-btn:hover .btn-arrow-badge .btn-arrow-svg {
+        transform: translateX(3px);
+      }
+
+      .cyber-game-btn:hover ~ .button-ambient-wave,
       .metallic-steel-btn:hover ~ .button-ambient-wave {
-        filter: blur(40px);
-        width: 360px;
-        height: 160px;
+        filter: blur(48px);
+        width: 380px;
+        height: 170px;
         background: radial-gradient(
           circle,
-          rgba(255, 255, 255, 0.4) 0%,
-          rgba(148, 163, 184, 0.25) 50%,
+          rgba(56, 189, 248, 0.45) 0%,
+          rgba(74, 158, 255, 0.25) 50%,
           transparent 75%
         );
       }
 
-      /* Hiệu ứng khi bấm (Cảm giác búa gõ / dập thủy lực) */
-      .metallic-steel-btn:active {
+      .cyber-game-btn:active, .metallic-steel-btn:active {
         transform: translateY(2px) scale(0.98);
         box-shadow:
-          0 0 20px rgba(255, 255, 255, 0.3),
+          0 0 20px rgba(56, 189, 248, 0.4),
           0 10px 25px rgba(0, 0, 0, 0.9),
           inset 0 3px 10px rgba(0, 0, 0, 0.8);
       }
@@ -901,78 +822,69 @@
       </div>
     </div>
 
-    <!-- Three.js Background Canvas -->
-    <canvas id="webgl-canvas"></canvas>
+    <!-- Kinetic Grid Background Canvas -->
+    <canvas id="kinetic-grid-canvas"></canvas>
 
     <!-- Lớp phủ điện ảnh chiều sâu -->
     <div class="screen-overlay"></div>
 
-    <!-- BỐ CỤC 2 CỘT: TRÁI (VIDEO NGƯỜI SẮT LỆCH TRÁI) - PHẢI (NÚT VÀO GAME ĐÊ TÔNG THÉP) -->
+    <!-- BỐ CỤC 2 CỘT: TRÁI (CON AI 3D SPLINE TƯƠNG TÁC) - PHẢI (NÚT VÀO GAME ĐÊ CYBER) -->
     <main class="main-viewport">
-      <!-- CỘT BÊN TRÁI: VIDEO NGƯỜI KIM LOẠI LỆCH HẲN VỀ PHÍA TRÁI -->
+      <!-- CỘT BÊN TRÁI: CON AI 3D TƯƠNG TÁC THEO CHUỘT LỆCH HẲN VỀ PHÍA TRÁI -->
       <section class="left-section">
         <div class="video-frame-container" id="videoContainer">
-          <!-- Vầng hào quang ánh kim phía sau người sắt -->
+          <!-- Vầng hào quang ánh kim phía sau robot AI -->
           <div class="video-ambient-glow"></div>
 
-          <!-- Khung 3D Tilt Wrapper theo chuột -->
-          <div class="video-tilt-wrapper" id="videoTiltWrapper">
-            <video
-              id="metalHumanVideo"
-              class="metal-video"
-              src="metal-human.mp4"
-              autoplay
-              muted
-              loop
-              playsinline
-              preload="auto"
-            ></video>
-
-            <div class="video-error-badge" id="videoErrorBadge">
-              ⚠️ <strong>Chưa tìm thấy video!</strong><br />
-              Hãy đảm bảo file <code>metal-human.mp4</code> nằm cùng thư mục với
-              <code>index.html</code>.
-            </div>
+          <!-- Khung chứa con AI 3D Spline tương tác -->
+          <div class="ai-model-wrapper" id="aiModelWrapper">
+            <spline-viewer
+              id="aiSplineViewer"
+              url="https://prod.spline.design/kZDDjO5HuC9GJUM2/scene.splinecode"
+            ></spline-viewer>
           </div>
         </div>
       </section>
 
-      <!-- CỘT BÊN PHẢI: NÚT BẤM "VÀO GAME ĐÊ" CÙNG TÔNG THÉP / SẮT NẰM CHÍNH GIỮA NỬA PHẢI -->
+      <!-- CỘT BÊN PHẢI: NÚT BẤM "VÀO GAME ĐÊ" PHONG CÁCH CYBER HOLOGRAPHIC -->
       <section class="right-section">
         <div class="cta-container" id="ctaContainer">
-          <!-- Hào quang thép & sóng radar -->
+          <!-- Hào quang Neon Cyan & sóng radar lan tỏa -->
           <div class="button-radar-ring"></div>
           <div class="button-ambient-wave"></div>
 
-          <!-- NÚT BẤM "VÀO GAME ĐÊ" TÔNG MÀU NGƯỜI SẮT / BRUSHED STEEL -->
-          <!-- Bạn có thể thay đổi đường link website đích ở href bên dưới -->
+          <!-- NÚT BẤM "VÀO GAME ĐÊ" CYBER HOLOGRAPHIC -->
           <a
             href="https://tank-l1rl.onrender.com/"
             target="_blank"
             rel="noopener noreferrer"
-            class="metallic-steel-btn"
+            class="cyber-game-btn"
             id="ctaButton"
           >
-            <!-- Đinh tán công nghiệp 4 góc -->
-            <span class="metal-rivet rivet-tl"></span>
-            <span class="metal-rivet rivet-tr"></span>
-            <span class="metal-rivet rivet-bl"></span>
-            <span class="metal-rivet rivet-br"></span>
+            <!-- Lớp viền phát quang Cyber Gradient -->
+            <span class="btn-cyber-border"></span>
 
-            <!-- Vệt sáng Chrome loáng kim loại khi hover -->
-            <span class="btn-chrome-sheen"></span>
+            <!-- Vệt sáng Laser Sheen khi hover -->
+            <span class="btn-laser-sheen"></span>
 
-            <!-- Đốm sáng bạc theo con trỏ chuột -->
-            <span class="btn-metal-spotlight" id="btnSpotlight"></span>
+            <!-- Đốm sáng Neon theo con trỏ chuột -->
+            <span class="btn-cyber-spotlight" id="btnSpotlight"></span>
 
-            <!-- Chữ "VÀO GAME ĐÊ" đúc thép Chrome nổi bật -->
-            <span class="btn-metal-label">VÀO GAME ĐÊ</span>
+            <!-- Khối icon tay cầm game Cyberpunk -->
+            <span class="btn-cyber-icon-box">
+              <svg class="btn-cyber-icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <rect x="2" y="6" width="20" height="12" rx="4" stroke-width="2" />
+                <path d="M6 12h4m-2-2v4m7-2h.01m3 0h.01" stroke-width="2.2" stroke-linecap="round" />
+              </svg>
+            </span>
 
-            <!-- Khối icon mũi tên thép đánh bóng -->
-            <span class="btn-steel-icon-box">
-              <svg class="btn-steel-icon-svg" viewBox="0 0 24 24">
-                <line x1="5" y1="12" x2="19" y2="12"></line>
-                <polyline points="12 5 19 12 12 19"></polyline>
+            <!-- Chữ "VÀO GAME ĐÊ" phát sáng Neon Cyan -->
+            <span class="btn-cyber-label">VÀO GAME ĐÊ</span>
+
+            <!-- Huy hiệu mũi tên chuyển động -->
+            <span class="btn-arrow-badge">
+              <svg class="btn-arrow-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <path d="M5 12h14M12 5l7 7-7 7" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
               </svg>
             </span>
           </a>
@@ -981,7 +893,7 @@
     </main>
 
     <!-- ==========================================================================
-       JAVASCRIPT: THREE.JS BỤI KIM LOẠI + ÂM THANH TIẾNG THÉP + TƯƠNG TÁC
+       JAVASCRIPT: KINETIC GRID ENGINE + ÂM THANH KIM LOẠI + TƯƠNG TÁC CON AI
        ========================================================================== -->
     <script>
       /* --------------------------------------------------------------------------
@@ -1090,230 +1002,307 @@
       }
 
       /* --------------------------------------------------------------------------
-       2. THREE.JS: HẠT BỤI SAO KIM LOẠI & LƯỚI KHÔNG GIAN BẠC
+       2. KINETIC GRID ENGINE (LƯỚI ĐỘNG LỰC HỌC TƯƠNG TÁC CON TRỎ & SÓNG NĂNG LƯỢNG)
        -------------------------------------------------------------------------- */
-      const canvas = document.getElementById("webgl-canvas");
-      let scene, camera, renderer;
-      let particleSystem, gridMesh;
-      let windowHalfX = window.innerWidth / 2;
-      let windowHalfY = window.innerHeight / 2;
+      const CELL_SIZE = 55;
+      const INFLUENCE_RADIUS = 260;
+      const MAX_WARP = 24;
+      const DOT_SPACING = 28;
+      const LERP_SPEED = 0.08;
 
-      let mouseX = 0;
-      let mouseY = 0;
-      let targetMouseX = 0;
-      let targetMouseY = 0;
+      const LINE_BASE = { r: 255, g: 255, b: 255, a: 0.13 };
+      const NODE_BASE_RADIUS = 1.8;
+      const NODE_ACTIVE_RADIUS = 3.2;
 
-      // Hạt ánh kim bạc / chrome lơ lửng
-      function createMetallicParticleTexture() {
-        const pCanvas = document.createElement("canvas");
-        pCanvas.width = 64;
-        pCanvas.height = 64;
-        const ctx = pCanvas.getContext("2d");
-
-        const gradient = ctx.createRadialGradient(32, 32, 0, 32, 32, 32);
-        gradient.addColorStop(0, "rgba(255, 255, 255, 1)");
-        gradient.addColorStop(0.25, "rgba(226, 232, 240, 0.85)");
-        gradient.addColorStop(0.55, "rgba(148, 163, 184, 0.35)");
-        gradient.addColorStop(1, "rgba(0, 0, 0, 0)");
-
-        ctx.fillStyle = gradient;
-        ctx.fillRect(0, 0, 64, 64);
-
-        const texture = new THREE.CanvasTexture(pCanvas);
-        texture.needsUpdate = true;
-        return texture;
+      function lerpN(a, b, t) {
+        return a + (b - a) * t;
       }
 
-      function initThree() {
-        scene = new THREE.Scene();
-
-        // Sương mù đen tuyền (#000000) hòa hợp tuyệt đối với video
-        scene.fog = new THREE.FogExp2(0x000000, 0.0012);
-
-        camera = new THREE.PerspectiveCamera(
-          60,
-          window.innerWidth / window.innerHeight,
-          1,
-          3000,
-        );
-        camera.position.z = 850;
-
-        renderer = new THREE.WebGLRenderer({
-          canvas: canvas,
-          alpha: true,
-          antialias: true,
-          powerPreference: "high-performance",
-        });
-        renderer.setClearColor(0x000000, 1);
-        renderer.setSize(window.innerWidth, window.innerHeight);
-        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-
-        // Hạt bụi kim loại / tinh thể thép trong không gian 3D
-        const particleCount = 2000;
-        const geometry = new THREE.BufferGeometry();
-        const positions = new Float32Array(particleCount * 3);
-        const colors = new Float32Array(particleCount * 3);
-        const originalY = new Float32Array(particleCount);
-
-        // Bảng màu bạc / thép / chrome / trắng tinh
-        const metallicPalette = [
-          new THREE.Color(0xffffff), // Bạch kim sáng
-          new THREE.Color(0xe2e8f0), // Bạc sáng
-          new THREE.Color(0xcbd5e1), // Thép chrome
-          new THREE.Color(0x94a3b8), // Titan xám
-        ];
-
-        for (let i = 0; i < particleCount; i++) {
-          const i3 = i * 3;
-          positions[i3] = (Math.random() - 0.5) * 2200;
-          const yVal = (Math.random() - 0.5) * 1600;
-          positions[i3 + 1] = yVal;
-          originalY[i] = yVal;
-          positions[i3 + 2] = (Math.random() - 0.5) * 2000;
-
-          const col =
-            metallicPalette[Math.floor(Math.random() * metallicPalette.length)];
-          colors[i3] = col.r;
-          colors[i3 + 1] = col.g;
-          colors[i3 + 2] = col.b;
-        }
-
-        geometry.setAttribute(
-          "position",
-          new THREE.BufferAttribute(positions, 3),
-        );
-        geometry.setAttribute("color", new THREE.BufferAttribute(colors, 3));
-
-        const particleMaterial = new THREE.PointsMaterial({
-          size: 8.5,
-          map: createMetallicParticleTexture(),
-          vertexColors: true,
-          transparent: true,
-          opacity: 0.8,
-          blending: THREE.AdditiveBlending,
-          depthWrite: false,
-        });
-
-        particleSystem = new THREE.Points(geometry, particleMaterial);
-        particleSystem.userData = { originalY: originalY };
-        scene.add(particleSystem);
-
-        // Lưới không gian màu xám thép mờ ảo
-        const gridWidth = 1400;
-        const gridDepth = 1400;
-        const gridSegments = 40;
-        const gridGeo = new THREE.PlaneGeometry(
-          gridWidth,
-          gridDepth,
-          gridSegments,
-          gridSegments,
-        );
-        gridGeo.rotateX(-Math.PI / 2);
-
-        const gridMat = new THREE.MeshBasicMaterial({
-          color: 0x94a3b8,
-          wireframe: true,
-          transparent: true,
-          opacity: 0.05,
-        });
-
-        gridMesh = new THREE.Mesh(gridGeo, gridMat);
-        gridMesh.position.y = -350;
-        scene.add(gridMesh);
-
-        // Lắng nghe tương tác
-        window.addEventListener("resize", onWindowResize, { passive: true });
-        document.addEventListener("mousemove", onDocumentMouseMove, {
-          passive: true,
-        });
-        document.addEventListener("touchmove", onDocumentTouchMove, {
-          passive: true,
-        });
+      function lerpColor(base, active, t) {
+        const r = Math.round(lerpN(base.r, active.r, t));
+        const g = Math.round(lerpN(base.g, active.g, t));
+        const b = Math.round(lerpN(base.b, active.b, t));
+        const a = lerpN(base.a, active.a, t);
+        return `rgba(${r},${g},${b},${a.toFixed(3)})`;
       }
 
-      function onWindowResize() {
-        windowHalfX = window.innerWidth / 2;
-        windowHalfY = window.innerHeight / 2;
-        camera.aspect = window.innerWidth / window.innerHeight;
-        camera.updateProjectionMatrix();
-        renderer.setSize(window.innerWidth, window.innerHeight);
-      }
+      const gridTheme = {
+        bg: "#09090c",
+        lineActive: { r: 74, g: 158, b: 255, a: 0.9 },
+        nodeActive: { r: 74, g: 158, b: 255, a: 1.0 },
+        glow: "74,158,255",
+        ripple: "100,180,255",
+      };
 
-      function onDocumentMouseMove(e) {
-        targetMouseX = (e.clientX - windowHalfX) * 0.45;
-        targetMouseY = (e.clientY - windowHalfY) * 0.45;
-      }
+      let gridCanvas = null;
+      let gridCtx = null;
+      let gridW = window.innerWidth;
+      let gridH = window.innerHeight;
+      const mouse = { x: -9999, y: -9999 };
+      const targetMouse = { x: -9999, y: -9999 };
+      const ripples = [];
+      let gridRaf = null;
 
-      function onDocumentTouchMove(e) {
-        if (e.touches.length > 0) {
-          targetMouseX = (e.touches[0].clientX - windowHalfX) * 0.3;
-          targetMouseY = (e.touches[0].clientY - windowHalfY) * 0.3;
-        }
-      }
+      function getWarpedPoint(gx, gy, col, row, mousePt, ripplesList, cols, rows) {
+        const edgeMargin = 1.5;
+        const colPin = Math.min(col / edgeMargin, (cols - 1 - col) / edgeMargin, 1);
+        const rowPin = Math.min(row / edgeMargin, (rows - 1 - row) / edgeMargin, 1);
+        const pinFactor = colPin * colPin * rowPin * rowPin;
 
-      let clock = new THREE.Clock();
+        const dx = gx - mousePt.x;
+        const dy = gy - mousePt.y;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        const proximity = Math.max(0, 1 - dist / INFLUENCE_RADIUS) * pinFactor;
 
-      function animateThree() {
-        requestAnimationFrame(animateThree);
-
-        const elapsedTime = clock.getElapsedTime();
-
-        // Camera Parallax mượt mà
-        mouseX += (targetMouseX - mouseX) * 0.05;
-        mouseY += (targetMouseY - mouseY) * 0.05;
-
-        camera.position.x = mouseX;
-        camera.position.y = -mouseY + 20;
-        camera.lookAt(0, 0, 0);
-
-        // Xoay nhẹ đám mây hạt kim loại
-        if (particleSystem) {
-          particleSystem.rotation.y = elapsedTime * 0.025;
-          particleSystem.rotation.x = Math.sin(elapsedTime * 0.02) * 0.06;
-
-          const posAttr = particleSystem.geometry.attributes.position;
-          const origY = particleSystem.userData.originalY;
-          for (let i = 0; i < origY.length; i += 2) {
-            posAttr.array[i * 3 + 1] =
-              origY[i] + Math.sin(elapsedTime * 1.5 + i) * 16;
+        let rx = 0, ry = 0;
+        for (let i = 0; i < ripplesList.length; i++) {
+          const r = ripplesList[i];
+          const rdx = gx - r.x;
+          const rdy = gy - r.y;
+          const rdist = Math.sqrt(rdx * rdx + rdy * rdy);
+          const waveWidth = 55;
+          const diff = rdist - r.radius;
+          if (Math.abs(diff) < waveWidth) {
+            const strength = (1 - Math.abs(diff) / waveWidth) * r.opacity * 18 * pinFactor;
+            const angle = Math.atan2(rdy, rdx);
+            const sign = diff < 0 ? -1 : 1;
+            rx += Math.cos(angle) * strength * sign * -1;
+            ry += Math.sin(angle) * strength * sign * -1;
           }
-          posAttr.needsUpdate = true;
         }
 
-        // Sóng dập dờn của lưới thép
-        if (gridMesh) {
-          const positions = gridMesh.geometry.attributes.position;
-          for (let i = 0; i < positions.count; i++) {
-            const u = positions.getX(i);
-            const v = positions.getZ(i);
-            const wave =
-              Math.sin(u * 0.008 + elapsedTime * 1.6) *
-              Math.cos(v * 0.008 + elapsedTime * 1.4) *
-              20;
-            positions.setY(i, wave);
+        if (dist < INFLUENCE_RADIUS && dist > 0 && pinFactor > 0) {
+          const t = dist / INFLUENCE_RADIUS;
+          const eased = t < 0.01 ? 0 : (1 - t) * (1 - t) * Math.min(1, dist / 60);
+          const warpAmt = eased * MAX_WARP * pinFactor;
+          const angle = Math.atan2(dy, dx);
+          return {
+            pt: {
+              x: gx - Math.cos(angle) * warpAmt + rx,
+              y: gy - Math.sin(angle) * warpAmt + ry,
+            },
+            proximity,
+          };
+        }
+
+        return { pt: { x: gx + rx, y: gy + ry }, proximity };
+      }
+
+      function drawKineticGrid(now) {
+        if (!gridCtx) return;
+
+        gridCtx.clearRect(0, 0, gridW, gridH);
+
+        gridCtx.fillStyle = gridTheme.bg;
+        gridCtx.fillRect(0, 0, gridW, gridH);
+
+        // Họa tiết chấm hạt tĩnh
+        gridCtx.fillStyle = "rgba(255,255,255,0.05)";
+        for (let x = DOT_SPACING / 2; x < gridW; x += DOT_SPACING) {
+          for (let y = DOT_SPACING / 2; y < gridH; y += DOT_SPACING) {
+            gridCtx.beginPath();
+            gridCtx.arc(x, y, 0.7, 0, Math.PI * 2);
+            gridCtx.fill();
           }
-          positions.needsUpdate = true;
-          gridMesh.position.z = (elapsedTime * 40) % (1400 / 40);
         }
 
-        renderer.render(scene, camera);
+        // Cập nhật sóng ripple
+        for (let i = ripples.length - 1; i >= 0; i--) {
+          const r = ripples[i];
+          const age = (now - r.born) / 1000;
+          r.radius = Math.max(0, age * 400);
+          r.opacity = Math.max(0, 1 - age * 1.2);
+          if (r.opacity <= 0) ripples.splice(i, 1);
+        }
+
+        const cols = Math.max(2, Math.ceil(gridW / CELL_SIZE)) + 1;
+        const rows = Math.max(2, Math.ceil(gridH / CELL_SIZE)) + 1;
+        const cellW = gridW / (cols - 1);
+        const cellH = gridH / (rows - 1);
+
+        const pts = [];
+        const prox = [];
+
+        for (let row = 0; row < rows; row++) {
+          pts[row] = [];
+          prox[row] = [];
+          for (let col = 0; col < cols; col++) {
+            const { pt, proximity } = getWarpedPoint(
+              col * cellW,
+              row * cellH,
+              col,
+              row,
+              mouse,
+              ripples,
+              cols,
+              rows,
+            );
+            pts[row][col] = pt;
+            prox[row][col] = proximity;
+          }
+        }
+
+        // Vẽ đường nối lưới
+        const drawSeg = (p1, p2, pr1, pr2) => {
+          const avg = (pr1 + pr2) / 2;
+          const t = avg * avg * (3 - 2 * avg);
+          gridCtx.beginPath();
+          gridCtx.moveTo(p1.x, p1.y);
+          gridCtx.lineTo(p2.x, p2.y);
+          gridCtx.strokeStyle = lerpColor(LINE_BASE, gridTheme.lineActive, t);
+          gridCtx.lineWidth = lerpN(0.8, 1.5, t);
+          gridCtx.stroke();
+        };
+
+        gridCtx.lineCap = "butt";
+
+        for (let row = 0; row < rows; row++) {
+          for (let col = 0; col < cols - 1; col++) {
+            drawSeg(pts[row][col], pts[row][col + 1], prox[row][col], prox[row][col + 1]);
+          }
+        }
+
+        for (let col = 0; col < cols; col++) {
+          for (let row = 0; row < rows - 1; row++) {
+            drawSeg(pts[row][col], pts[row + 1][col], prox[row][col], prox[row + 1][col]);
+          }
+        }
+
+        // Vẽ các nút giao nhau (nodes)
+        for (let row = 0; row < rows; row++) {
+          for (let col = 0; col < cols; col++) {
+            const p = pts[row][col];
+            const pr = prox[row][col];
+            const t = pr * pr * (3 - 2 * pr);
+            const r = lerpN(NODE_BASE_RADIUS, NODE_ACTIVE_RADIUS, t);
+
+            if (t > 0.3) {
+              const glowR = r + lerpN(0, 6, (t - 0.3) / 0.7);
+              const grd = gridCtx.createRadialGradient(p.x, p.y, r * 0.5, p.x, p.y, glowR);
+              grd.addColorStop(0, `rgba(${gridTheme.glow},${(t * 0.3).toFixed(3)})`);
+              grd.addColorStop(1, `rgba(${gridTheme.glow},0)`);
+              gridCtx.beginPath();
+              gridCtx.arc(p.x, p.y, glowR, 0, Math.PI * 2);
+              gridCtx.fillStyle = grd;
+              gridCtx.fill();
+            }
+
+            gridCtx.beginPath();
+            gridCtx.arc(p.x, p.y, r, 0, Math.PI * 2);
+            gridCtx.fillStyle = lerpColor({ r: 255, g: 255, b: 255, a: 0.2 }, gridTheme.nodeActive, t);
+            gridCtx.fill();
+          }
+        }
+
+        // Vẽ vòng tròn sóng lan tỏa (ripple rings)
+        for (let i = 0; i < ripples.length; i++) {
+          const rp = ripples[i];
+          const safeRadius = Math.max(0, rp.radius);
+          gridCtx.beginPath();
+          gridCtx.arc(rp.x, rp.y, safeRadius, 0, Math.PI * 2);
+          gridCtx.strokeStyle = `rgba(${gridTheme.ripple},${(rp.opacity * 0.28).toFixed(3)})`;
+          gridCtx.lineWidth = 1.5;
+          gridCtx.stroke();
+        }
+      }
+
+      function animateKineticGrid(now) {
+        mouse.x = lerpN(mouse.x, targetMouse.x, LERP_SPEED);
+        mouse.y = lerpN(mouse.y, targetMouse.y, LERP_SPEED);
+
+        drawKineticGrid(now);
+        gridRaf = requestAnimationFrame(animateKineticGrid);
+      }
+
+      function initKineticGrid() {
+        gridCanvas = document.getElementById("kinetic-grid-canvas");
+        if (!gridCanvas) return;
+        gridCtx = gridCanvas.getContext("2d");
+
+        const resize = () => {
+          gridW = window.innerWidth;
+          gridH = window.innerHeight;
+          gridCanvas.width = gridW;
+          gridCanvas.height = gridH;
+        };
+
+        resize();
+        window.addEventListener("resize", resize, { passive: true });
+
+        window.addEventListener("mousemove", (e) => {
+          targetMouse.x = e.clientX;
+          targetMouse.y = e.clientY;
+        }, { passive: true });
+
+        window.addEventListener("click", (e) => {
+          ripples.push({
+            x: e.clientX,
+            y: e.clientY,
+            radius: 0,
+            opacity: 1,
+            born: performance.now(),
+          });
+        });
+
+        gridRaf = requestAnimationFrame(animateKineticGrid);
       }
 
       /* --------------------------------------------------------------------------
-       3. PRELOADER & VIDEO TẢI DỮ LIỆU
+       XÓA BỎ HOÀN TOÀN WATERMARK "BUILT WITH SPLINE"
        -------------------------------------------------------------------------- */
-      const video = document.getElementById("metalHumanVideo");
-      const videoTiltWrapper = document.getElementById("videoTiltWrapper");
-      const videoContainer = document.getElementById("videoContainer");
-      const videoErrorBadge = document.getElementById("videoErrorBadge");
+      function removeSplineBadge() {
+        const viewer = document.getElementById("aiSplineViewer");
+        if (!viewer) return;
 
+        const purge = () => {
+          try {
+            const root = viewer.shadowRoot;
+            if (root) {
+              if (!root.getElementById("spline-no-badge-style")) {
+                const style = document.createElement("style");
+                style.id = "spline-no-badge-style";
+                style.textContent = `
+                  #logo, a#logo, [href*="spline.design"], a[href*="spline"], 
+                  .spline-watermark, #badge, [class*="watermark"], [class*="logo"] {
+                    display: none !important;
+                    opacity: 0 !important;
+                    visibility: hidden !important;
+                    pointer-events: none !important;
+                    clip: rect(0, 0, 0, 0) !important;
+                    position: absolute !important;
+                    left: -9999px !important;
+                    transform: scale(0) !important;
+                  }
+                `;
+                root.appendChild(style);
+              }
+              const logo = root.querySelector('#logo, a[href*="spline.design"], .spline-watermark, [id*="logo"]');
+              if (logo) logo.remove();
+            }
+          } catch (e) {}
+        };
+
+        purge();
+        const timer = setInterval(purge, 50);
+        setTimeout(() => clearInterval(timer), 8000);
+
+        if (viewer.shadowRoot) {
+          const obs = new MutationObserver(purge);
+          obs.observe(viewer.shadowRoot, { childList: true, subtree: true });
+        }
+      }
+
+      /* --------------------------------------------------------------------------
+       3. PRELOADER & NẠP CON AI 3D SPLINE TƯƠNG TÁC
+       -------------------------------------------------------------------------- */
+      const splineViewer = document.getElementById("aiSplineViewer");
       const preloader = document.getElementById("preloader");
       const loadPercent = document.getElementById("loadPercent");
       const loadProgressBar = document.getElementById("loadProgressBar");
       const loadStatusText = document.getElementById("loadStatusText");
 
       let currentPercent = 0;
-      let targetPercent = 15;
+      let targetPercent = 25;
       let isLoaded = false;
 
       function finishLoading() {
@@ -1325,18 +1314,14 @@
         if (loadProgressBar) loadProgressBar.style.width = "100%";
         if (loadStatusText) loadStatusText.textContent = "DỮ LIỆU ĐÃ TẢI THÀNH CÔNG";
 
-        if (video) {
-          video.play().catch(() => {});
-        }
-
         setTimeout(() => {
           if (preloader) {
             preloader.classList.add("loaded");
             setTimeout(() => {
-              try { preloader.remove(); } catch(e){}
+              try { preloader.remove(); } catch (e) {}
             }, 850);
           }
-        }, 500);
+        }, 400);
       }
 
       // Vòng lặp cập nhật tiến trình loading mượt mà
@@ -1346,10 +1331,10 @@
           return;
         }
 
-        // Tăng dần tiến trình giả lập để luôn mượt mà trong khi chờ video nạp
-        targetPercent = Math.min(97, targetPercent + 0.35);
-        currentPercent += (targetPercent - currentPercent) * 0.12;
-        
+        // Tăng dần tiến trình để mượt mà trong khi mô hình 3D nạp
+        targetPercent = Math.min(95, targetPercent + 0.6);
+        currentPercent += (targetPercent - currentPercent) * 0.15;
+
         const displayVal = Math.min(100, Math.floor(currentPercent));
         if (loadPercent) loadPercent.textContent = displayVal;
         if (loadProgressBar) loadProgressBar.style.width = `${displayVal}%`;
@@ -1360,78 +1345,29 @@
         }
       }, 30);
 
-      // Giới hạn tối đa 6.5s tự động hoàn tất nếu mạng hoặc video nạp chậm
+      // Khi mô hình 3D Spline tải xong
+      if (splineViewer) {
+        splineViewer.addEventListener("load", () => {
+          removeSplineBadge();
+          targetPercent = 100;
+          finishLoading();
+        });
+      }
+
+      // Giới hạn an toàn tối đa 4.5s tự động mở trang nếu mạng chậm
       setTimeout(() => {
         if (!isLoaded) {
           targetPercent = 100;
           finishLoading();
         }
-      }, 6500);
+      }, 4500);
 
-      if (video) {
-        video.addEventListener("loadedmetadata", () => {
-          if (video.videoWidth && video.videoHeight && videoContainer) {
-            videoContainer.style.aspectRatio = `${video.videoWidth} / ${video.videoHeight}`;
-          }
-          targetPercent = Math.max(targetPercent, 40);
-        });
-
-        video.addEventListener("loadeddata", () => {
-          targetPercent = Math.max(targetPercent, 65);
-        });
-
-        video.addEventListener("progress", () => {
-          if (video.duration > 0 && video.buffered.length > 0) {
-            const bufferedEnd = video.buffered.end(video.buffered.length - 1);
-            const pct = (bufferedEnd / video.duration) * 100;
-            targetPercent = Math.max(targetPercent, Math.min(96, 55 + pct * 0.45));
-          }
-        });
-
-        video.addEventListener("canplaythrough", () => {
-          targetPercent = 100;
-        });
-
-        video.addEventListener("canplay", () => {
-          if (targetPercent < 90) targetPercent = 90;
-        });
-
-        video.addEventListener("error", () => {
-          if (videoErrorBadge) videoErrorBadge.style.display = "block";
-          targetPercent = 100;
-          finishLoading();
-        });
-
-        const resumeMedia = () => {
-          if (video.paused) {
-            video.play().catch(() => {});
-          }
-          getAudioContext();
-          window.removeEventListener("pointerdown", resumeMedia);
-        };
-        window.addEventListener("pointerdown", resumeMedia, { once: true });
-      }
-
-      // Nghiêng 3D parallax theo chuột trên Desktop
-      if (videoContainer && videoTiltWrapper && window.innerWidth > 991) {
-        window.addEventListener(
-          "mousemove",
-          (e) => {
-            const rect = videoContainer.getBoundingClientRect();
-            const centerX = rect.left + rect.width / 2;
-            const centerY = rect.top + rect.height / 2;
-
-            const deltaX = (e.clientX - centerX) / (window.innerWidth / 2);
-            const deltaY = (e.clientY - centerY) / (window.innerHeight / 2);
-
-            const tiltX = -deltaY * 6;
-            const tiltY = deltaX * 8;
-
-            videoTiltWrapper.style.transform = `perspective(1000px) rotateX(${tiltX.toFixed(2)}deg) rotateY(${tiltY.toFixed(2)}deg) translateZ(10px)`;
-          },
-          { passive: true },
-        );
-      }
+      // Kích hoạt Audio Context khi người dùng tương tác lần đầu
+      const initAudioOnInteraction = () => {
+        getAudioContext();
+        window.removeEventListener("pointerdown", initAudioOnInteraction);
+      };
+      window.addEventListener("pointerdown", initAudioOnInteraction, { once: true });
 
       /* --------------------------------------------------------------------------
        4. NÚT BẤM "VÀO GAME ĐÊ" VẬT LÝ KIM LOẠI & LỰC HÚT MAGNETIC
@@ -1488,8 +1424,8 @@
 
       // Khởi chạy khi DOM sẵn sàng
       window.addEventListener("DOMContentLoaded", () => {
-        initThree();
-        animateThree();
+        initKineticGrid();
+        removeSplineBadge();
       });
     </script>
   </body>
