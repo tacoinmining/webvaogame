@@ -4,9 +4,9 @@
     <meta charset="UTF-8" />
     <meta
       name="viewport"
-      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"
     />
-    <title>CHAN ĐÊ</title>
+    <title>VÀO GAME ĐÊ</title>
 
     <!-- Google Fonts: Orbitron & Rajdhani -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -56,11 +56,14 @@
       body {
         width: 100vw;
         height: 100vh;
+        height: 100dvh;
         overflow: hidden;
         background-color: var(--bg-dark);
         color: var(--metal-chrome);
         font-family: var(--font-display);
         position: relative;
+        -webkit-font-smoothing: antialiased;
+        -webkit-tap-highlight-color: transparent;
       }
 
       /* ==========================================================================
@@ -72,6 +75,7 @@
         left: 0;
         width: 100vw;
         height: 100vh;
+        height: 100dvh;
         z-index: 1;
         pointer-events: none;
       }
@@ -90,13 +94,14 @@
       }
 
       /* ==========================================================================
-       BỐ CỤC CHÍNH (2 CỘT: VIDEO LỆCH TRÁI - NÚT THÉP BÊN PHẢI)
+       BỐ CỤC CHÍNH (2 CỘT: ROBOT LỆCH TRÁI SÁT ĐÁY - NÚT THÉP BÊN PHẢI)
        ========================================================================== */
       .main-viewport {
         position: relative;
         z-index: 10;
         width: 100vw;
         height: 100vh;
+        height: 100dvh;
         display: flex;
         flex-direction: row;
         align-items: center;
@@ -104,41 +109,43 @@
       }
 
       /* --------------------------------------------------------------------------
-       CỘT TRÁI: VIDEO NGƯỜI SẮT LỆCH HẲN VỀ PHÍA TRÁI
+       CỘT TRÁI: CON ROBOT 3D LỆCH TRÁI VÀ SÁT MÉP DƯỚI (KHÔNG MẤT CHÂN)
        -------------------------------------------------------------------------- */
       .left-section {
-        flex: 1.15;
+        flex: 1.18;
         height: 100%;
         position: relative;
         display: flex;
-        align-items: center;
+        align-items: flex-end; /* Sát mép dưới để không bị mất chân robot */
         justify-content: flex-start; /* Lệch về phía bên trái */
-        padding-left: 4vw;
-        padding-right: 1.5rem;
+        padding-left: 2.5vw;
+        padding-right: 1rem;
+        padding-bottom: 0; /* Ép sát đáy sàn màn hình */
         overflow: hidden;
       }
 
       .video-frame-container {
         position: relative;
         width: 100%;
-        max-width: 780px;
-        height: 75vh;
-        min-height: 480px;
-        max-height: 86vh;
+        max-width: 860px;
+        height: 93vh; /* Chiều cao tối đa để thấy toàn bộ đầu tới chân robot */
+        max-height: 98vh;
         display: flex;
-        align-items: center;
+        align-items: flex-end; /* Chân robot chạm sát mép dưới */
         justify-content: center;
+        margin-bottom: 0;
       }
 
       /* Hào quang kim loại bạc / ánh thép phía sau robot AI */
       .video-ambient-glow {
         position: absolute;
-        width: 90%;
-        height: 90%;
+        width: 85%;
+        height: 80%;
+        bottom: 5%;
         background: radial-gradient(
-          circle at 50% 50%,
-          rgba(148, 163, 184, 0.25) 0%,
-          rgba(203, 213, 225, 0.15) 45%,
+          circle at 50% 55%,
+          rgba(148, 163, 184, 0.22) 0%,
+          rgba(203, 213, 225, 0.12) 45%,
           transparent 75%
         );
         filter: blur(55px);
@@ -164,7 +171,7 @@
         width: 100%;
         height: 100%;
         display: flex;
-        align-items: center;
+        align-items: flex-end;
         justify-content: center;
         z-index: 1;
       }
@@ -174,6 +181,7 @@
         height: 100%;
         background: transparent;
         outline: none;
+        display: block;
       }
 
       spline-viewer::part(badge) {
@@ -260,6 +268,8 @@
         gap: 1.25rem;
         padding: 1.25rem 3.2rem;
         border-radius: 20px;
+        touch-action: manipulation;
+        -webkit-tap-highlight-color: transparent;
         background: linear-gradient(
           135deg,
           rgba(15, 23, 42, 0.88) 0%,
@@ -516,73 +526,201 @@
       }
 
       /* ==========================================================================
-       RESPONSIVE (MOBILE & TABLET)
+       RESPONSIVE (MOBILE & TABLET FIX - TỐI ƯU HÓA HOÀN TOÀN CHO ĐIỆN THOẠI)
        ========================================================================== */
       @media (max-width: 991px) {
         html,
         body {
+          height: 100vh;
+          height: 100dvh;
+          overflow: hidden;
+          position: fixed;
+          width: 100%;
+        }
+
+        .main-viewport {
+          flex-direction: column;
+          justify-content: space-between;
+          align-items: center;
+          height: 100vh;
+          height: 100dvh;
+          width: 100vw;
+          padding: 0.5rem 1rem calc(1.4rem + env(safe-area-inset-bottom, 0px));
+          overflow: hidden;
+          position: relative;
+          z-index: 10;
+        }
+
+        /* Phần hiển thị Robot trên điện thoại: chiếm phần trên và sát đáy */
+        .left-section {
+          flex: 1;
+          width: 100%;
+          height: auto;
+          min-height: 0;
+          max-height: 68vh;
+          max-height: 68dvh;
+          padding: 0;
+          display: flex;
+          align-items: flex-end; /* Chân robot sát đáy phần trên, không bị cắt */
+          justify-content: center;
+          overflow: hidden;
+          position: relative;
+        }
+
+        .video-frame-container {
+          width: 100%;
+          max-width: 100%;
+          height: 100%;
+          max-height: 100%;
+          display: flex;
+          align-items: flex-end;
+          justify-content: center;
+          margin-bottom: 0;
+        }
+
+        .ai-model-wrapper {
+          width: 100%;
+          height: 100%;
+          display: flex;
+          align-items: flex-end;
+          justify-content: center;
+        }
+
+        .video-ambient-glow {
+          width: 90%;
+          height: 70%;
+          bottom: 0;
+        }
+
+        /* Khu vực nút bấm trên điện thoại: gọn gàng ở dưới cùng, dễ chạm */
+        .right-section {
+          flex: none;
+          width: 100%;
+          height: auto;
+          padding: 0.75rem 0 0.5rem;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          z-index: 25;
+          position: relative;
+        }
+
+        .cta-container {
+          width: 100%;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+        }
+
+        .button-ambient-wave {
+          width: 280px;
+          height: 90px;
+        }
+
+        /* Nút bấm VÀO GAME ĐÊ vừa vặn trên màn hình điện thoại */
+        .cyber-game-btn, .metallic-steel-btn {
+          width: 94%;
+          max-width: 350px;
+          padding: 1rem 1.6rem;
+          gap: 0.85rem;
+          border-radius: 16px;
+          box-shadow:
+            0 0 25px rgba(56, 189, 248, 0.45),
+            0 12px 30px rgba(0, 0, 0, 0.9);
+        }
+
+        .btn-cyber-label, .btn-metal-label {
+          font-size: 1.18rem;
+          letter-spacing: 2.5px;
+        }
+
+        .btn-cyber-icon-box, .btn-steel-icon-box {
+          width: 40px;
+          height: 40px;
+          border-radius: 10px;
+          flex-shrink: 0;
+        }
+
+        .btn-cyber-icon-svg, .btn-steel-icon-svg {
+          width: 20px;
+          height: 20px;
+        }
+
+        .btn-arrow-badge {
+          width: 32px;
+          height: 32px;
+          border-radius: 8px;
+          flex-shrink: 0;
+        }
+
+        .btn-arrow-svg {
+          width: 16px;
+          height: 16px;
+        }
+      }
+
+      /* Màn hình điện thoại nhỏ (iPhone SE, màn hình < 380px) */
+      @media (max-width: 380px) {
+        .cyber-game-btn, .metallic-steel-btn {
+          padding: 0.85rem 1.1rem;
+          gap: 0.6rem;
+          width: 98%;
+        }
+
+        .btn-cyber-label, .btn-metal-label {
+          font-size: 1.05rem;
+          letter-spacing: 1.5px;
+        }
+
+        .btn-cyber-icon-box, .btn-steel-icon-box {
+          width: 34px;
+          height: 34px;
+        }
+
+        .btn-arrow-badge {
+          display: none;
+        }
+      }
+
+      /* Màn hình điện thoại xoay ngang hoặc chiều cao thấp */
+      @media (max-height: 640px) and (max-width: 991px) {
+        html,
+        body {
+          position: static;
           overflow-y: auto;
           overflow-x: hidden;
         }
 
         .main-viewport {
-          flex-direction: column;
           height: auto;
           min-height: 100vh;
-          padding: 2rem 1rem;
+          overflow-y: auto;
+          padding: 1rem;
         }
 
         .left-section {
-          flex: none;
-          width: 100%;
-          height: 54vh;
-          min-height: 330px;
-          padding: 1rem;
-          justify-content: center; /* Trên mobile căn giữa cho cân đối */
-        }
-
-        .video-frame-container {
-          max-width: 95%;
-          height: 100%;
-        }
-
-        .right-section {
-          flex: none;
-          width: 100%;
-          height: auto;
-          padding: 2.5rem 1.5rem;
-        }
-
-        .metallic-steel-btn {
-          padding: 1.2rem 2.8rem;
-          gap: 1.2rem;
-          width: 90%;
-          max-width: 350px;
-        }
-
-        .btn-metal-label {
-          font-size: 1.25rem;
-          letter-spacing: 4px;
+          max-height: 52vh;
         }
       }
 
+      /* Loading trên màn hình di động */
       @media (max-width: 480px) {
-        .left-section {
-          height: 50vh;
+        .load-percent-number {
+          font-size: 2.3rem;
         }
 
-        .metallic-steel-btn {
-          padding: 1.1rem 2rem;
+        .preloader-bar-track {
+          max-width: 270px;
         }
 
-        .btn-metal-label {
-          font-size: 1.1rem;
-          letter-spacing: 3px;
+        .preloader-status {
+          font-size: 0.78rem;
+          letter-spacing: 1.5px;
         }
 
-        .btn-steel-icon-box {
-          width: 38px;
-          height: 38px;
+        .preloader-reactor {
+          width: 78px;
+          height: 78px;
         }
       }
 
@@ -1228,10 +1366,33 @@
 
         resize();
         window.addEventListener("resize", resize, { passive: true });
+        window.addEventListener("orientationchange", () => setTimeout(resize, 150), { passive: true });
 
         window.addEventListener("mousemove", (e) => {
           targetMouse.x = e.clientX;
           targetMouse.y = e.clientY;
+        }, { passive: true });
+
+        const handleTouch = (e) => {
+          if (e.touches && e.touches[0]) {
+            targetMouse.x = e.touches[0].clientX;
+            targetMouse.y = e.touches[0].clientY;
+          }
+        };
+
+        window.addEventListener("touchmove", handleTouch, { passive: true });
+
+        window.addEventListener("touchstart", (e) => {
+          handleTouch(e);
+          if (e.touches && e.touches[0]) {
+            ripples.push({
+              x: e.touches[0].clientX,
+              y: e.touches[0].clientY,
+              radius: 0,
+              opacity: 1,
+              born: performance.now(),
+            });
+          }
         }, { passive: true });
 
         window.addEventListener("click", (e) => {
@@ -1254,10 +1415,16 @@
         const viewer = document.getElementById("aiSplineViewer");
         if (!viewer) return;
 
+        let obsAttached = false;
         const purge = () => {
           try {
             const root = viewer.shadowRoot;
             if (root) {
+              if (!obsAttached) {
+                const obs = new MutationObserver(purge);
+                obs.observe(root, { childList: true, subtree: true });
+                obsAttached = true;
+              }
               if (!root.getElementById("spline-no-badge-style")) {
                 const style = document.createElement("style");
                 style.id = "spline-no-badge-style";
@@ -1285,11 +1452,6 @@
         purge();
         const timer = setInterval(purge, 50);
         setTimeout(() => clearInterval(timer), 8000);
-
-        if (viewer.shadowRoot) {
-          const obs = new MutationObserver(purge);
-          obs.observe(viewer.shadowRoot, { childList: true, subtree: true });
-        }
       }
 
       /* --------------------------------------------------------------------------
@@ -1366,8 +1528,12 @@
       const initAudioOnInteraction = () => {
         getAudioContext();
         window.removeEventListener("pointerdown", initAudioOnInteraction);
+        window.removeEventListener("touchstart", initAudioOnInteraction);
+        window.removeEventListener("click", initAudioOnInteraction);
       };
       window.addEventListener("pointerdown", initAudioOnInteraction, { once: true });
+      window.addEventListener("touchstart", initAudioOnInteraction, { once: true });
+      window.addEventListener("click", initAudioOnInteraction, { once: true });
 
       /* --------------------------------------------------------------------------
        4. NÚT BẤM "VÀO GAME ĐÊ" VẬT LÝ KIM LOẠI & LỰC HÚT MAGNETIC
