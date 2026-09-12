@@ -978,6 +978,7 @@
           <div class="ai-model-wrapper" id="aiModelWrapper">
             <spline-viewer
               id="aiSplineViewer"
+              events-target="global"
               url="https://prod.spline.design/kZDDjO5HuC9GJUM2/scene.splinecode"
             ></spline-viewer>
           </div>
@@ -1511,6 +1512,15 @@
       if (splineViewer) {
         splineViewer.addEventListener("load", () => {
           removeSplineBadge();
+          try {
+            if (splineViewer._spline) {
+              if (typeof splineViewer._spline.setGlobalEvents === "function") {
+                splineViewer._spline.setGlobalEvents(true);
+              } else if (splineViewer._spline.eventManager) {
+                splineViewer._spline.eventManager.updateUseWindowEvents(true);
+              }
+            }
+          } catch (e) {}
           targetPercent = 100;
           finishLoading();
         });
